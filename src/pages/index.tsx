@@ -25,12 +25,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import { StatusBadge } from "../components/Status/StatusBadge";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/tabs";
-
-interface IOS {
-  id: number;
-  title: string;
-  status: string;
-}
+import { TabContent } from "../components/TabContent";
 
 interface IBasicModal {
   isOpen: boolean;
@@ -45,10 +40,6 @@ interface IResponse {
   description?: string;
   aaa?: string;
   details?: string;
-}
-
-interface ITabContent {
-  data: Array<IResponse>;
 }
 
 function BasicUsage({ isOpen, onOpen, onClose }: IBasicModal) {
@@ -156,45 +147,6 @@ function BasicUsage({ isOpen, onOpen, onClose }: IBasicModal) {
           </ModalContent>
         </form>
       </Modal>
-    </>
-  );
-}
-
-function TabContent({ data }: ITabContent) {
-  const router = useRouter();
-
-  function childrenDetails(id: number) {
-    router.push(`detalhes/${id}`);
-  }
-
-  return (
-    <>
-      {!data.length ? (
-        <Flex align="center" justify="center" direction="column" height="100%">
-          <Text>Nenhum chamado nessa categoria.</Text>
-        </Flex>
-      ) : (
-        <Container paddingY="4" height="100%">
-          {data.map((serviceOrder: IOS) => (
-            <Box
-              boxShadow="lg"
-              p="4"
-              key={serviceOrder?.id}
-              onClick={() => childrenDetails(serviceOrder.id)}
-            >
-              <Heading as="h6" size="sm" sx={{ textAlign: "justify" }}>
-                {serviceOrder.title}
-              </Heading>
-              <Text align="justify" fontSize="sm" fontWeight="bolder">
-                Status: <StatusBadge status={serviceOrder.status} />
-              </Text>
-              <Text fontSize="xs" align="justify">
-                20 min atras
-              </Text>
-            </Box>
-          ))}
-        </Container>
-      )}
     </>
   );
 }

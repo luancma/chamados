@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import { StatusBadge } from "../../components/Status/StatusBadge";
 import { GetStaticPaths, GetStaticProps } from 'next'
 import {ModalLabel} from "../../components/ModalLabel"
-import { ParsedUrlQuery } from 'querystring'
 
 interface IServiceOrder {
   id: number;
@@ -66,7 +65,6 @@ export default function Details({ order }: any) {
   return (
     <Flex height="100%" paddingBottom="4" className="fade-in">
       <Container>
-        {serviceOrder.map((order: IServiceOrder) => (
           <React.Fragment key={order.id}>
             <Box paddingY="6">
               <Heading size="md">Chamado 2</Heading>
@@ -84,7 +82,6 @@ export default function Details({ order }: any) {
               )}
             </Stack>
           </React.Fragment>
-        ))}
         <Updates updates={updates} />
       </Container>
     </Flex>
