@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { Box, Flex } from "@chakra-ui/layout";
+import { Box, Center, Flex, Text } from "@chakra-ui/layout";
 import { FaArrowLeft } from "react-icons/fa";
 
 export default function Appbar() {
@@ -25,9 +25,14 @@ export default function Appbar() {
       left="0"
       zIndex="banner"
     >
-      <Box pos="absolute" left="1rem" onClick={handleBack}>
-        <FaArrowLeft size="24px" color="white" />
-      </Box>
+      <Center color="white">  
+        <Text>Chamados</Text>
+      </Center>
+      {isValidatedPage && (
+        <Box pos="absolute" left="1rem" onClick={handleBack}>
+          <FaArrowLeft size="24px" color="white" />
+        </Box>
+      )}
     </Flex>
   );
 }

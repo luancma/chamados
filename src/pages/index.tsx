@@ -66,7 +66,8 @@ function BasicUsage({ isOpen, onOpen, onClose }: IBasicModal) {
         status: "open",
       }), // body data type must match "Content-Type" header
     });
-    return response.json(); // parses JSON response into native JavaScript objects
+    console.log(response.json()); // parses JSON response into native JavaScript objects
+    onClose();
   }
 
   function handleCloseModal() {
