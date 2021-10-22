@@ -1,10 +1,11 @@
 import React from "react";
 import { Box, Container, Flex, Heading, Stack, Text } from "@chakra-ui/layout";
-import { FormControl, FormLabel } from "@chakra-ui/form-control";
-import { Textarea } from "@chakra-ui/textarea";
 import Updates from "../../components/Updates";
 import { useRouter } from "next/router";
 import { StatusBadge } from "../../components/Status/StatusBadge";
+import { GetStaticPaths, GetStaticProps } from 'next'
+import {ModalLabel} from "../../components/ModalLabel"
+import { ParsedUrlQuery } from 'querystring'
 
 interface IServiceOrder {
   id: number;
@@ -55,28 +56,15 @@ const updates: any = [
   },
 ];
 
-type IFormLabelItem = {
-  label?: string;
-  itemValue?: string;
-};
-
-function ModalLabel({ label, itemValue }: IFormLabelItem) {
-  return (
-    <FormControl>
-      <FormLabel fontSize="sm" fontWeight="bold">
-        {label}
-      </FormLabel>
-      <Textarea value={itemValue} size="sm" isReadOnly borderColor="blue.500" />
-    </FormControl>
-  );
-}
-
-export default function Details() {
+export default function Details({ order }: any) {
   const router = useRouter();
-  const { id } = router.query;
+
+  if (router.isFallback) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <Flex height="100%" paddingBottom="4">
+    <Flex height="100%" paddingBottom="4" className="fade-in">
       <Container>
         {serviceOrder.map((order: IServiceOrder) => (
           <React.Fragment key={order.id}>
@@ -101,4 +89,36 @@ export default function Details() {
       </Container>
     </Flex>
   );
+}
+
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const orders = await fetch(
+    "https://my-json-server.typicode.com/luancma/json-server/orders"
+  ).then(response => response.json())
+  
+  const paths = orders.map((order: any) => ({
+    params: { id: `${order.id}`},
+  }));
+
+  return { paths, fallback: true  };
+}
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+
+  const order = await fetch(
+    `https://my-json-server.typicode.com/luancma/json-server/orders/${params?.id}`
+  ).then(response => response.json())
+
+  if (!order) {
+    return {
+      notFound: true,
+    };
+  }
+  
+  return { props: { order, revalidate: 60 * 24  } };
+}
+
+export interface Props {
+  id?: string;
 }

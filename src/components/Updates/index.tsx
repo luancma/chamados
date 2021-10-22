@@ -1,9 +1,6 @@
-import { Box, Divider, Heading, Stack, Text } from "@chakra-ui/layout";
-import Status from "../../utils/Status";
+import { Box, Heading, Stack, Text } from "@chakra-ui/layout";
 
 export default function Updates(prop: { updates: any }) {
-  const getCurrentStatus = (status) => Status.getCurrentOrderStatus(status);
-
   return (
     <>
       {prop.updates.length && (
@@ -17,6 +14,7 @@ export default function Updates(prop: { updates: any }) {
             height="auto"
             border="1px"
             borderColor="blue.500"
+            borderRadius="8"
           >
             {prop.updates.map((update: any, index: number) => (
               <Stack spacing="2" key={update.id}>
