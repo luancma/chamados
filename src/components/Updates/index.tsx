@@ -1,6 +1,11 @@
 import { Box, Heading, Stack, Text } from "@chakra-ui/layout";
+import { Button, useDisclosure } from "@chakra-ui/react";
+import { CreateNewUpdateModal } from "../Modal/Updates/Create"
 
 export default function Updates(prop: { updates: any }) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const handleCreateUpdate = () => {};
   return (
     <>
       {prop.updates.length && (
@@ -18,10 +23,12 @@ export default function Updates(prop: { updates: any }) {
           >
             {prop.updates.map((update: any, index: number) => (
               <Stack spacing="2" key={update.id}>
-                {index > 0 && <Box width="100%" height="1px" bgColor="blue.500" />}
+                {index > 0 && (
+                  <Box width="100%" height="1px" bgColor="blue.500" />
+                )}
                 <Box>
                   <Heading as="h6" size="sm">
-                    Luiz
+                    Usuário
                   </Heading>
                   <Text fontSize="sm"> {update.message}</Text>
                 </Box>
@@ -29,8 +36,17 @@ export default function Updates(prop: { updates: any }) {
               </Stack>
             ))}
           </Stack>
+          <Button colorScheme="green" onClick={onOpen}>
+            Adicionar
+          </Button>
         </Stack>
       )}
+      <CreateNewUpdateModal
+        isOpen={isOpen}
+        onOpen={onOpen}
+        onClose={onClose}
+        onCreate={async () => console.log("dskadma")}
+      />
     </>
   );
 }

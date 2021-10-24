@@ -26,12 +26,7 @@ import { useRouter } from "next/router";
 import { StatusBadge } from "../components/Status/StatusBadge";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/tabs";
 import { TabContent } from "../components/TabContent";
-
-interface IBasicModal {
-  isOpen: boolean;
-  onOpen: () => void;
-  onClose: () => void;
-}
+import { CreateOrderModal } from "../components/Modal/Create";
 
 interface IResponse {
   id: number;
@@ -42,15 +37,27 @@ interface IResponse {
   details?: string;
 }
 
-function BasicUsage({ isOpen, onOpen, onClose }: IBasicModal) {
-  const { handleSubmit, register, reset, watch } = useForm();
+export default function Home({ data }: any) {
+  const router = useRouter();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const watchShowAge = watch("aaa", false);
+  const handleOpenModal = () => {
+    onOpen();
+  };
 
-  async function onSubmit(values: any) {
+  const getOpenTasks = (data: Array<IResponse>) =>
+    data.filter((task) => task.status === "open");
+
+  const getClosedTasks = (data: Array<IResponse>) =>
+    data.filter((task) => task.status === "close");
+
+  const getInProgressTasks = (data: Array<IResponse>) =>
+    data.filter((task) => task.status === "in_progress");
+
+  const createServiceOrder = async (values: any) => {
     const url =
       "https://my-json-server.typicode.com/luancma/json-server/orders";
-    const response = await fetch(url, {
+      return await fetch(url, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
       mode: "cors", // no-cors, *cors, same-origin
       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -65,117 +72,13 @@ function BasicUsage({ isOpen, onOpen, onClose }: IBasicModal) {
         ...values,
         status: "open",
       }), // body data type must match "Content-Type" header
-    });
-    console.log(response.json()); // parses JSON response into native JavaScript objects
-    onClose();
-  }
-
-  function handleCloseModal() {
-    reset();
-    onClose();
-  }
-
-  return (
-    <>
-      <Modal isOpen={isOpen} onClose={handleCloseModal} size="full">
-        <ModalOverlay />
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <ModalContent>
-            <ModalHeader>Nova ordem de serviço</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Stack spacing="4">
-                <FormControl id="first-name" isRequired>
-                  <FormLabel>Bem</FormLabel>
-                  <Input
-                    placeholder="Bem que receberá o chamado"
-                    {...register("title")}
-                  />
-                </FormControl>
-
-                <FormControl id="first-name" isRequired>
-                  <FormLabel>Ocorrência</FormLabel>
-                  <Textarea
-                    placeholder="Descrição da ordem de serviço"
-                    size="md"
-                    lines="3"
-                    {...register("description")}
-                  />
-                </FormControl>
-
-                <Checkbox defaultIsChecked={false} {...register("aaa")}>
-                  Adicionar detalhes
-                </Checkbox>
-                {!!watchShowAge && (
-                  <FormControl id="first-name" isRequired>
-                    <FormLabel>Detalhes</FormLabel>
-                    <Textarea
-                      placeholder="Detalhes da ordem de serviço"
-                      size="md"
-                      lines="3"
-                      {...register("details")}
-                    />
-                  </FormControl>
-                )}
-              </Stack>
-            </ModalBody>
-
-            <ModalFooter>
-              <Stack width="100%" spacing={4}>
-                <Button
-                  colorScheme="green"
-                  borderColor="green"
-                  mr={3}
-                  type="submit"
-                  width="100%"
-                  padding="6"
-                  variant="solid"
-                >
-                  Criar
-                </Button>
-                <Button
-                  borderColor="red"
-                  color="red"
-                  variant="outline"
-                  onClick={handleCloseModal}
-                  width="100%"
-                  padding="6"
-                >
-                  Cancelar
-                </Button>
-              </Stack>
-            </ModalFooter>
-          </ModalContent>
-        </form>
-      </Modal>
-    </>
-  );
-}
-
-export default function Home({ data }: any) {
-  const router = useRouter();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const handleOpenModal = () => {
-    onOpen();
+    }).then(response => response.json())
   };
-
-  function childrenDetails(id: number) {
-    router.push(`detalhes/${id}`);
-  }
-
-  const getOpenTasks = (data: Array<IResponse>) =>
-    data.filter((task) => task.status === "open");
-
-  const getClosedTasks = (data: Array<IResponse>) =>
-    data.filter((task) => task.status === "close");
-
-  const getInProgressTasks = (data: Array<IResponse>) =>
-    data.filter((task) => task.status === "in_progress");
 
   if (!data.length) {
     return <p>Loading</p>;
   }
+
   return (
     <div>
       <Head>
@@ -191,7 +94,7 @@ export default function Home({ data }: any) {
           left="0"
           top="64px"
         >
-          <TabList>
+          <TabList maxWidth="1024px">
             <Tab paddingY="4">Abertas</Tab>
             <Tab>Iniciadas</Tab>
             <Tab>Terminadas</Tab>
@@ -209,7 +112,12 @@ export default function Home({ data }: any) {
           </TabPanels>
         </Tabs>
       </Box>
-      <BasicUsage isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
+      <CreateOrderModal
+        isOpen={isOpen}
+        onOpen={onOpen}
+        onClose={onClose}
+        onCreate={createServiceOrder}
+      />
       <IconButton
         aria-label="Call Sage"
         borderRadius={"50%"}
