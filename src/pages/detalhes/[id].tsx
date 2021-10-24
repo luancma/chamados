@@ -3,8 +3,9 @@ import { Box, Container, Flex, Heading, Stack, Text } from "@chakra-ui/layout";
 import Updates from "../../components/Updates";
 import { useRouter } from "next/router";
 import { StatusBadge } from "../../components/Status/StatusBadge";
-import { GetStaticPaths, GetStaticProps } from 'next'
-import {ModalLabel} from "../../components/ModalLabel"
+import { GetStaticPaths, GetStaticProps } from "next";
+import { ModalLabel } from "../../components/ModalLabel";
+import { instance } from "../../utils/api/instance";
 
 interface IServiceOrder {
   id: number;
@@ -32,31 +33,12 @@ const serviceOrder: Array<IServiceOrder> = [
   },
 ];
 
-const updates: any = [
-  {
-    id: 1,
-    message: "Pessoa do suporte começou o atenndimento",
-    updatedAt: new Date(),
-  },
-  {
-    id: 2,
-    message: "ASKL;DJAS DASDKOD DASOKDASO",
-    updatedAt: new Date(),
-  },
-  {
-    id: 4,
-    message: "ASKL;DJAS DASDKOD DASOKDASO",
-    updatedAt: new Date(),
-  },
-  {
-    id: 6,
-    message: "ASKL;DJAS DASDKOD DASOKDASO",
-    updatedAt: new Date(),
-  },
-];
-
-export default function Details({ order }: any) {
+export default function Details({ orderProps }: any) {
   const router = useRouter();
+
+  console.log({ orderProps });
+
+  const { order, updates } = orderProps;
 
   if (router.isFallback) {
     return <div>Loading...</div>;
@@ -65,58 +47,72 @@ export default function Details({ order }: any) {
   return (
     <Flex height="100%" paddingBottom="4" className="fade-in">
       <Container>
-        {serviceOrder.map((order: IServiceOrder) => (
-          <React.Fragment key={order.id}>
-            <Box paddingY="6">
-              <Heading size="md">Chamado 2</Heading>
-              <Text>
-                Status:
-                <StatusBadge status={order.status} />
-              </Text>
-            </Box>
+        <React.Fragment key={order.id}>
+          <Box paddingY="6">
+            <Heading size="md">Detalhes</Heading>
+            <Text>
+              Status:
+              <StatusBadge status={order.status} />
+            </Text>
+          </Box>
 
-            <Stack spacing="4">
-              <ModalLabel label={"Bem"} itemValue={order.title} />
-              <ModalLabel label={"Ocorrência"} itemValue={order.description} />
-              {!!order.details && (
-                <ModalLabel label={"Detalhes"} itemValue={order.details} />
-              )}
-            </Stack>
-          </React.Fragment>
-        ))}
+          <Stack spacing="4">
+            <ModalLabel label={"Bem"} itemValue={order.title} />
+            <ModalLabel label={"Ocorrência"} itemValue={order.description} />
+            {!!order.details && (
+              <ModalLabel label={"Detalhes"} itemValue={order.details} />
+            )}
+          </Stack>
+        </React.Fragment>
         <Updates updates={updates} />
       </Container>
     </Flex>
   );
 }
 
-
+interface IOrder {
+  id: number;
+  description: string;
+  title: string;
+  details: string;
+  status: string;
+}
 export const getStaticPaths: GetStaticPaths = async () => {
-  const orders = await fetch(
-    "https://my-json-server.typicode.com/luancma/json-server/orders"
-  ).then(response => response.json())
-  
+  const orders = await instance
+    .get<Array<IOrder>>("/orders")
+    .then((response) => response.data);
+
   const paths = orders.map((order: any) => ({
-    params: { id: `${order.id}`},
+    params: { id: `${order.id}` },
   }));
 
-  return { paths, fallback: true  };
-}
+  return { paths, fallback: true };
+};
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const order = await instance
+    .get<Array<IOrder>>(`/orders/${params?.id}`)
+    .then((response) => response.data);
 
-  const order = await fetch(
-    `https://my-json-server.typicode.com/luancma/json-server/orders/${params?.id}`
-  ).then(response => response.json())
+  const updatesProps = await instance
+    .get<Array<any>>(`/updates?order_id=${params?.id}`)
+    .then((response) => response.data);
 
   if (!order) {
     return {
       notFound: true,
     };
   }
-  
-  return { props: { order, revalidate: 60 * 24  } };
-}
+
+  const orderProps = {
+    order,
+    updates: updatesProps,
+  };
+
+  console.log(orderProps);
+
+  return { props: { orderProps, revalidate: 60 * 24 } };
+};
 
 export interface Props {
   id?: string;

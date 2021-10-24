@@ -70,7 +70,8 @@ export function CreateNewUpdateModal({
                   borderColor="green"
                   type="submit"
                   width="100%"
-                  padding="6"
+                  padding="6
+                  "
                   variant="solid"
                 >
                   Criar

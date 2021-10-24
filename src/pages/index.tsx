@@ -27,6 +27,7 @@ import { StatusBadge } from "../components/Status/StatusBadge";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/tabs";
 import { TabContent } from "../components/TabContent";
 import { CreateOrderModal } from "../components/Modal/Create";
+import RestService, { getOrders } from "../utils/api/RestService";
 
 interface IResponse {
   id: number;
@@ -57,7 +58,7 @@ export default function Home({ data }: any) {
   const createServiceOrder = async (values: any) => {
     const url =
       "https://my-json-server.typicode.com/luancma/json-server/orders";
-      return await fetch(url, {
+    return await fetch(url, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
       mode: "cors", // no-cors, *cors, same-origin
       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -72,11 +73,11 @@ export default function Home({ data }: any) {
         ...values,
         status: "open",
       }), // body data type must match "Content-Type" header
-    }).then(response => response.json())
+    }).then((response) => response);
   };
 
   if (!data.length) {
-    return <p>Loading</p>;
+    return <Container><Spinner></Spinner></Container>;
   }
 
   return (
@@ -136,15 +137,12 @@ export default function Home({ data }: any) {
 }
 
 export async function getStaticProps() {
-  const res = await fetch(
-    `https://my-json-server.typicode.com/luancma/json-server/orders`
-  );
-
-  const data = await res.json();
-  if (!data.length) {
+  try {
+    const data = await getOrders()
+    return { props: { data } };
+  } catch (error) {
     return {
       notFound: true,
     };
   }
-  return { props: { data } };
 }
