@@ -48,14 +48,14 @@ export default function Home() {
     onOpen();
   };
 
-  const getOpenTasks = (data: Array<IResponse>) =>
-    data.filter((task) => task.status === "open");
+  const getOpenTasks = (data: any) =>
+    data.filter((task: any) => task.status === "open");
 
-  const getClosedTasks = (data: Array<IResponse>) =>
-    data.filter((task) => task.status === "close");
+  const getClosedTasks = (data: any ) =>
+    data.filter((task: any) => task.status === "close");
 
-  const getInProgressTasks = (data: Array<IResponse>) =>
-    data.filter((task) => task.status === "in_progress");
+  const getInProgressTasks = (data: any ) =>
+    data.filter((task: any) => task.status === "in_progress");
 
   const createServiceOrder = async (values: any) => {
     const url =

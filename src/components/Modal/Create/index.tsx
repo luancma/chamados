@@ -21,7 +21,7 @@ interface IModal {
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
-  onCreate: (values: any) => Promise<void>;
+  onCreate: any;
 }
 
 export function CreateOrderModal({
