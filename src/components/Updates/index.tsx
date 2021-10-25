@@ -1,14 +1,13 @@
 import { Box, Heading, Stack, Text } from "@chakra-ui/layout";
 import { Button, useDisclosure } from "@chakra-ui/react";
-import { CreateNewUpdateModal } from "../Modal/Updates/Create"
+import { CreateNewUpdateModal } from "../Modal/Updates/Create";
 
 export default function Updates(prop: { updates: any }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const handleCreateUpdate = () => {};
   return (
     <>
-      {prop.updates.length && (
+      {prop.updates.length ? (
         <Stack marginTop="4">
           <Heading size="md" paddingY="6">
             Atualizações
@@ -38,6 +37,12 @@ export default function Updates(prop: { updates: any }) {
           </Stack>
           <Button colorScheme="green" onClick={onOpen}>
             Adicionar
+          </Button>
+        </Stack>
+      ) : (
+        <Stack marginTop="4">
+          <Button colorScheme="green" onClick={onOpen}>
+            Adicionar atualização
           </Button>
         </Stack>
       )}

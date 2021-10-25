@@ -13,8 +13,10 @@ import {
   ModalOverlay,
   Textarea,
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { instance } from "../../../../utils/api/instance";
 
 interface IModal {
   isOpen: boolean;
@@ -30,9 +32,14 @@ export function CreateNewUpdateModal({
   onCreate,
 }: IModal) {
   const { handleSubmit, register, reset, watch } = useForm();
+  const router = useRouter();
 
   const handleCreateNewOrder = async (values: any) => {
-    await onCreate(values);
+    // await onCreate(values);
+    await instance.post("/updates", {
+      description: values,
+      order_id: router.query.id
+    });
     handleCloseModal();
   };
 
@@ -70,8 +77,7 @@ export function CreateNewUpdateModal({
                   borderColor="green"
                   type="submit"
                   width="100%"
-                  padding="6
-                  "
+                  padding="6"
                   variant="solid"
                 >
                   Criar
