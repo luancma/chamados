@@ -6,6 +6,7 @@ import { StatusBadge } from "../../components/Status/StatusBadge";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { ModalLabel } from "../../components/ModalLabel";
 import { instance } from "../../utils/api/instance";
+import { QueryClient, useQuery } from "react-query";
 
 interface IServiceOrder {
   id: number;
@@ -38,35 +39,53 @@ export default function Details({ orderProps }: any) {
 
   console.log({ orderProps });
 
-  const { order, updates } = orderProps;
+  const { order } = orderProps;
 
-  if (router.isFallback) {
-    return <div>Loading...</div>;
-  }
+  const updatesProps = async () =>
+    await instance
+      .get<Array<any>>(`/updates?order_id=${order?.id}`)
+      .then((response) => response.data);
+
+  const {
+    data: updates,
+    isLoading,
+    isFetching,
+  } = useQuery("updateState", updatesProps);
+
+  const showLoading = router.isFallback || isLoading;
 
   return (
-    <Flex height="100%" paddingBottom="4" className="fade-in">
-      <Container>
-        <React.Fragment key={order.id}>
-          <Box paddingY="6">
-            <Heading size="md">Detalhes</Heading>
-            <Text>
-              Status:
-              <StatusBadge status={order.status} />
-            </Text>
-          </Box>
+    <>
+      {showLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <Flex height="100%" paddingBottom="4" className="fade-in">
+          <Container>
+            <React.Fragment key={order.id}>
+              <Box paddingY="6">
+                <Heading size="md">Detalhes</Heading>
+                <Text>
+                  Status:
+                  <StatusBadge status={order.status} />
+                </Text>
+              </Box>
 
-          <Stack spacing="4">
-            <ModalLabel label={"Bem"} itemValue={order.title} />
-            <ModalLabel label={"Ocorrência"} itemValue={order.description} />
-            {!!order.details && (
-              <ModalLabel label={"Detalhes"} itemValue={order.details} />
-            )}
-          </Stack>
-        </React.Fragment>
-        <Updates updates={updates} />
-      </Container>
-    </Flex>
+              <Stack spacing="4">
+                <ModalLabel label={"Bem"} itemValue={order.title} />
+                <ModalLabel
+                  label={"Ocorrência"}
+                  itemValue={order.description}
+                />
+                {!!order.details && (
+                  <ModalLabel label={"Detalhes"} itemValue={order.details} />
+                )}
+              </Stack>
+            </React.Fragment>
+            <Updates updates={updates} />
+          </Container>
+        </Flex>
+      )}
+    </>
   );
 }
 
@@ -94,10 +113,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     .get<Array<IOrder>>(`/orders/${params?.id}`)
     .then((response) => response.data);
 
-  const updatesProps = await instance
-    .get<Array<any>>(`/updates?order_id=${params?.id}`)
-    .then((response) => response.data);
-
   if (!order) {
     return {
       notFound: true,
@@ -106,10 +121,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   const orderProps = {
     order,
-    updates: updatesProps,
   };
-
-  console.log(orderProps);
 
   return { props: { orderProps, revalidate: 60 * 24 } };
 };

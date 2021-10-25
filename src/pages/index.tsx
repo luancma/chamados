@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 import Head from "next/head";
 import React from "react";
-import { useQuery } from "react-query";
+import { dehydrate, QueryClient, useQuery } from "react-query";
 import { MdAdd } from "react-icons/md";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
@@ -28,7 +28,7 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/tabs";
 import { TabContent } from "../components/TabContent";
 import { CreateOrderModal } from "../components/Modal/Create";
 import RestService, { getOrders } from "../utils/api/RestService";
-
+import { instance } from "../utils/api/instance";
 interface IResponse {
   id: number;
   title: string;
@@ -38,9 +38,12 @@ interface IResponse {
   details?: string;
 }
 
-export default function Home({ data }: any) {
-  const router = useRouter();
+export default function Home() {
+  async function test() {
+    return await instance.get("/orders").then((response) => response.data);
+  }
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { data } = useQuery("ordensState", test);
 
   const handleOpenModal = () => {
     onOpen();
@@ -76,8 +79,14 @@ export default function Home({ data }: any) {
     }).then((response) => response);
   };
 
-  if (!data.length) {
-    return <Container><Spinner></Spinner></Container>;
+  console.log(data)
+
+  if (!data) {
+    return (
+      <Container>
+        <Spinner></Spinner>
+      </Container>
+    );
   }
 
   return (
@@ -137,12 +146,13 @@ export default function Home({ data }: any) {
 }
 
 export async function getStaticProps() {
-  try {
-    const data = await getOrders()
-    return { props: { data } };
-  } catch (error) {
-    return {
-      notFound: true,
-    };
-  }
+  const getOrders = () =>
+    instance.get("/orders").then((response) => response.data);
+
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery("ordensState", getOrders);
+
+  const data = [];
+  return { props: { dehydratedState: dehydrate(queryClient) } };
 }

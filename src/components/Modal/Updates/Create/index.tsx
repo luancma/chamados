@@ -16,6 +16,12 @@ import {
 import { useRouter } from "next/router";
 import React from "react";
 import { useForm } from "react-hook-form";
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "react-query";
 import { instance } from "../../../../utils/api/instance";
 
 interface IModal {
@@ -33,13 +39,24 @@ export function CreateNewUpdateModal({
 }: IModal) {
   const { handleSubmit, register, reset, watch } = useForm();
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const getOrders = () =>
+    instance.get("/orders").then((response) => response.data);
+  const { data } = useQuery("ordensState", getOrders);
+
+  const createNewUpdate = useMutation(async (values: any) => {
+    const update = await instance.post("/updates", {
+      order_id: router.query.id,
+      message: values.message,
+    });
+  }, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("updateState");
+    }
+  });
 
   const handleCreateNewOrder = async (values: any) => {
-    // await onCreate(values);
-    await instance.post("/updates", {
-      description: values,
-      order_id: router.query.id
-    });
+    createNewUpdate.mutateAsync(values)
     handleCloseModal();
   };
 
@@ -64,7 +81,7 @@ export function CreateNewUpdateModal({
                     placeholder="Detalhes da atualização"
                     size="md"
                     lines="3"
-                    {...register("details")}
+                    {...register("message")}
                   />
                 </FormControl>
               </Stack>
