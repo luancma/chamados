@@ -34,12 +34,9 @@ const serviceOrder: Array<IServiceOrder> = [
   },
 ];
 
-export default function Details({ orderProps }: any) {
+export default function Details({ order }: any) {
   const router = useRouter();
 
-  console.log({ orderProps });
-
-  const { order } = orderProps;
 
   const updatesProps = async () =>
     await instance
@@ -119,11 +116,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     };
   }
 
-  const orderProps = {
-    order,
-  };
-
-  return { props: { orderProps, revalidate: 60 * 24 } };
+  return { props: { order, revalidate: 60 * 24 } };
 };
 
 export interface Props {
