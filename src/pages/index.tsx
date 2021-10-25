@@ -27,7 +27,6 @@ import { StatusBadge } from "../components/Status/StatusBadge";
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/tabs";
 import { TabContent } from "../components/TabContent";
 import { CreateOrderModal } from "../components/Modal/Create";
-import RestService, { getOrders } from "../utils/api/RestService";
 import { instance } from "../utils/api/instance";
 interface IResponse {
   id: number;
@@ -78,8 +77,6 @@ export default function Home() {
       }), // body data type must match "Content-Type" header
     }).then((response) => response);
   };
-
-  console.log(data)
 
   if (!data) {
     return (
@@ -153,6 +150,5 @@ export async function getStaticProps() {
 
   await queryClient.prefetchQuery("ordensState", getOrders);
 
-  const data = [];
   return { props: { dehydratedState: dehydrate(queryClient) } };
 }
