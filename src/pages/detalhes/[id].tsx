@@ -50,7 +50,8 @@ export default function Details({ order }: any) {
   } = useQuery("updateState", updatesProps, {
     staleTime: Infinity,
     refetchIntervalInBackground: true,
-    refetchInterval: 5000
+    refetchInterval: 60 * 1000,
+    refetchOnWindowFocus: true
   });
 
   const showLoading = router.isFallback || isLoading;
