@@ -47,7 +47,11 @@ export default function Details({ order }: any) {
     data: updates,
     isLoading,
     isFetching,
-  } = useQuery("updateState", updatesProps);
+  } = useQuery("updateState", updatesProps, {
+    staleTime: Infinity,
+    refetchIntervalInBackground: true,
+    refetchInterval: 5000
+  });
 
   const showLoading = router.isFallback || isLoading;
 
